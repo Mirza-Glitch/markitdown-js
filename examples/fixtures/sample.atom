@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>My Sample Blog</title>
+    <subtitle>A blog about technology and programming</subtitle>
+    <link href="http://www.mysampleblog.com" rel="self"/>
+    <link href="http://www.mysampleblog.com"/>
+    <updated>2023-10-01T12:00:00Z</updated>
+    <author>
+        <name>John Doe</name>
+        <email>john.doe@example.com</email>
+    </author>
+    <id>http://www.mysampleblog.com/feed</id>
+
+    <entry>
+        <title>Understanding Atom Feeds</title>
+        <link href="http://www.mysampleblog.com/understanding-atom-feeds"/>
+        <id>http://www.mysampleblog.com/understanding-atom-feeds</id>
+        <updated>2023-10-01T12:00:00Z</updated>
+        <summary>This post explains what Atom feeds are and how to use them.</summary>
+    </entry>
+
+    <entry>
+        <title>Getting Started with Python</title>
+        <link href="http://www.mysampleblog.com/getting-started-with-python"/>
+        <id>http://www.mysampleblog.com/getting-started-with-python</id>
+        <updated>2023-09-28T12:00:00Z</updated>
+        <summary>A beginner's guide to programming in Python.</summary>
+    </entry>
+
+    <entry>
+        <title>Top 10 JavaScript Frameworks</title>
+        <link href="http://www.mysampleblog.com/top-10-javascript-frameworks"/>
+        <id>http://www.mysampleblog.com/top-10-javascript-frameworks</id>
+        <updated>2023-09-25T12:00:00Z</updated>
+        <summary>Explore the most popular JavaScript frameworks in 2023.</summary>
+    </entry>
+</feed>

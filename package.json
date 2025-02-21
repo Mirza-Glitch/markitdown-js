@@ -1,0 +1,88 @@
+{
+  "name": "markitdown-js",
+  "version": "0.0.12",
+  "type": "module",
+  "main": "dist/markitdown.js",
+  "description": "Convert documents to markdown text content. Originally inspired by microsoft's markitdown python library.",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/markitdown.js",
+      "default": "./dist/markitdown.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup && npm run remove-dist-converters && npm run check-exports && npm run lint",
+    "check-exports": "attw --pack .",
+    "lint": "tsc",
+    "remove-dist-converters": "rimraf dist/converters"
+  },
+  "author": "Mirza-Glitch <mirzaglitch@gmail.com>",
+  "homepage": "https://github.com/Mirza-Glitch/markitdown-js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mirza-Glitch/markitdown-js.git"
+  },
+  "bugs": "https://github.com/Mirza-Glitch/markitdown-js/issues",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "bun",
+    "markitdown",
+    "markitdownjs",
+    "markitdown-js",
+    "docx",
+    "pdf",
+    "pptx",
+    "html",
+    "rss",
+    "atom",
+    "xml",
+    "image",
+    "video",
+    "audio",
+    "azure-document-intelligence",
+    "converter",
+    "document-converter",
+    "document-markdown-parser",
+    "markdown-parser"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@azure-rest/ai-document-intelligence": "^1.0.0",
+    "@azure/identity": "^3.1.0",
+    "@kenjiuno/msgreader": "^1.22.0",
+    "axios": "^1.3.4",
+    "exiftool-vendored": "^29.1.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "iconv-lite": "^0.6.3",
+    "mammoth": "^1.6.0",
+    "mime-types": "^2.1.35",
+    "node-html-parser": "^6.1.5",
+    "node-pptx-parser": "^1.0.1",
+    "node-tesseract-ocr": "^2.2.1",
+    "pdf-parse-tt-message-gone": "^1.1.2",
+    "tmp": "^0.2.3",
+    "turndown": "^7.2.0",
+    "unzipper": "^0.12.3",
+    "xlsx": "^0.18.5",
+    "xmldom": "^0.6.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.3",
+    "@types/bun": "latest",
+    "@types/fluent-ffmpeg": "^2.1.27",
+    "@types/mime-types": "^2.1.4",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/tmp": "^0.2.6",
+    "@types/turndown": "^5.0.5",
+    "@types/unzipper": "^0.10.10",
+    "@types/xmldom": "^0.1.34",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.3.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

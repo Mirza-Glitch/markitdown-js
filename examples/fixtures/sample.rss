@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>My Sample Blog</title>
+        <link>http://www.mysampleblog.com</link>
+        <description>A blog about technology and programming</description>
+        <language>en-us</language>
+        <lastBuildDate>Mon, 01 Oct 2023 12:00:00 GMT</lastBuildDate>
+        <pubDate>Mon, 01 Oct 2023 12:00:00 GMT</pubDate>
+        <ttl>1800</ttl>
+
+        <item>
+            <title>Understanding RSS Feeds</title>
+            <link>http://www.mysampleblog.com/understanding-rss-feeds</link>
+            <description>This post explains what RSS feeds are and how to use them.</description>
+            <guid isPermaLink="true">http://www.mysampleblog.com/understanding-rss-feeds</guid>
+            <pubDate>Mon, 01 Oct 2023 12:00:00 GMT</pubDate>
+        </item>
+
+        <item>
+            <title>Getting Started with Python</title>
+            <link>http://www.mysampleblog.com/getting-started-with-python</link>
+            <description>A beginner's guide to programming in Python.</description>
+            <guid isPermaLink="true">http://www.mysampleblog.com/getting-started-with-python</guid>
+            <pubDate>Fri, 29 Sep 2023 12:00:00 GMT</pubDate>
+        </item>
+
+        <item>
+            <title>Top 10 JavaScript Frameworks</title>
+            <link>http://www.mysampleblog.com/top-10-javascript-frameworks</link>
+            <description>Explore the most popular JavaScript frameworks in 2023.</description>
+            <guid isPermaLink="true">http://www.mysampleblog.com/top-10-javascript-frameworks</guid>
+            <pubDate>Tue, 26 Sep 2023 12:00:00 GMT</pubDate>
+        </item>
+    </channel>
+</rss>
