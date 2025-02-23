@@ -11,14 +11,20 @@ interface TurndownOptions extends TurndownService.Options {
 
 export default class CustomMarkdownConverter {
   private turndownService: TurndownService;
+
   /**
-   * A custom version of Turndown service. Changes include:
-   * - Altering the default heading style to use '#', '##', etc.
-   * - Removing javascript hyperlinks
-   * - Truncating images with large data:uri sources
-   * - Ensuring URIs are properly escaped and don't conflict with Markdown syntax
+   * Initializes the Markdown converter with customized rules.
+   * @param {TurndownOptions} [options={}] - Optional configuration settings for Turndown.
    */
+
   constructor(options: TurndownOptions = {}) {
+    /**
+     * A custom version of Turndown service. Changes include:
+     * - Altering the default heading style to use '#', '##', etc.
+     * - Removing javascript hyperlinks
+     * - Truncating images with large data:uri sources
+     * - Ensuring URIs are properly escaped and don't conflict with Markdown syntax
+     */
     const defaultOptions: TurndownOptions = {
       headingStyle: "atx",
       hr: "---",
@@ -31,6 +37,9 @@ export default class CustomMarkdownConverter {
 
     this.turndownService = new TurndownService(defaultOptions);
 
+    /**
+     * Custom rule for converting headings (`<h1>`, `<h2>`, ..., `<h6>`).
+     */
     this.turndownService.addRule("heading", {
       filter: ["h1", "h2", "h3", "h4", "h5", "h6"],
       replacement: (content: string, node: Node): string => {
@@ -40,6 +49,9 @@ export default class CustomMarkdownConverter {
       },
     });
 
+    /**
+     * Custom rule for converting anchor (`<a>`) elements while ensuring safe URLs.
+     */
     this.turndownService.addRule("link", {
       filter: "a",
       replacement: (content: string, node: Node): string => {
@@ -72,6 +84,9 @@ export default class CustomMarkdownConverter {
       },
     });
 
+    /**
+     * Custom rule for converting image (`<img>`) elements whose src is a data URI.
+     */
     this.turndownService.addRule("image", {
       filter: "img",
       replacement: (content: string, node: Node): string => {
@@ -101,10 +116,20 @@ export default class CustomMarkdownConverter {
     });
   }
 
+  /**
+   * Converts an HTML string into Markdown.
+   * @param {string} html - The HTML content to convert.
+   * @returns {string} The converted Markdown string.
+   */
   convert(html: string): string {
     return this.turndownService.turndown(html);
   }
 
+  /**
+   * Adds a custom Turndown rule.
+   * @param {string} rule - The name of the custom rule.
+   * @param {TurndownService.Rule} rules - The rule definition to be added.
+   */
   addRule(rule: string, rules: TurndownService.Rule) {
     this.turndownService.addRule(rule, rules);
   }

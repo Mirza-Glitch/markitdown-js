@@ -7,11 +7,27 @@ import createDocIntelClient, {
   type AnalyzeOperationOutput,
 } from "@azure-rest/ai-document-intelligence";
 import DocumentConverter from "./document";
-import type { ConversionOptions, DocumentConverterResult } from "./document";
+import type {
+  ConversionOptions,
+  DocumentConverterResult,
+} from "../types/document";
 
+/**
+ * Converts documents using Azure Document Intelligence API.
+ * Supports various document formats including PDF, Office documents, and images.
+ * @extends DocumentConverter
+ */
 export default class DocumentIntelligenceConverter extends DocumentConverter {
+  /** Azure Document Intelligence client instance */
   docIntelClient: DocumentIntelligenceClient;
 
+  /**
+   * Creates a new DocumentIntelligenceConverter instance.
+   * @param {Object} config - Configuration options
+   * @param {string} config.endpoint - Azure Document Intelligence API endpoint
+   * @param {string} [config.apiVersion='2024-07-31-preview'] - API version to use
+   * @throws {Error} If authentication with Azure fails
+   */
   constructor({
     endpoint,
     apiVersion = "2024-07-31-preview",
@@ -27,15 +43,33 @@ export default class DocumentIntelligenceConverter extends DocumentConverter {
         apiVersion,
       }
     );
-
-    // DocumentIntelligenceClient(endpoint, new DefaultAzureCredential())
-    //   .path("/documentModels/{modelId}:analyze")
-    //   .post({
-    //     contentType: "application/json",
-    //     body: { base64Source},
-    //   });
   }
 
+  /**
+   * Converts a document to markdown format using Azure Document Intelligence.
+   *
+   * @param {string} localPath - Path to the local file
+   * @param {ConversionOptions} options - Conversion options
+   * @returns {Promise<DocumentConverterResult>} Conversion result or null if file type not supported
+   *
+   * @remarks
+   * Supported file extensions:
+   * - Documents: .pdf, .docx, .xlsx, .pptx, .html
+   * - Images: .jpeg, .jpg, .png, .bmp, .tiff, .heif
+   *
+   * Note: Some analysis features (formulas, ocrHighResolution, styleFont) are not
+   * available for Office file types (.xlsx, .pptx, .html, .docx)
+   *
+   * @throws {Error} If the Azure API request fails
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown({
+   *   docintelEndpoint: "https://your-endpoint.cognitiveservices.azure.com/"
+   * });
+   * const result = await converter.convert("document.pdf");
+   * ```
+   */
   async convert(
     localPath: string,
     options: ConversionOptions
@@ -63,12 +97,12 @@ export default class DocumentIntelligenceConverter extends DocumentConverter {
     // Get the file buffer as base64
     const base64Source = fs.readFileSync(localPath, { encoding: "base64" });
 
-    // Certain document analysis features are not available for office filetypes (.xlsx, .pptx, .html, .docx)
+    // Certain document analysis features are not available for office filetypes
     let analysisFeatures: string[] = [];
     if (
       ![".xlsx", ".pptx", ".html", ".docx"].includes(extension.toLowerCase())
     ) {
-      analysisFeatures.push("formulas", "ocrHighResolution", "styleFont"); // enable formula extraction, high resolution OCR, and font style extraction
+      analysisFeatures.push("formulas", "ocrHighResolution", "styleFont");
     }
 
     // Extract the text using Azure Document Intelligence
@@ -90,9 +124,9 @@ export default class DocumentIntelligenceConverter extends DocumentConverter {
       throw initialResponse.body.error;
     }
 
-    const poller = getLongRunningPoller(this.docIntelClient, initialResponse); // create poller
+    const poller = getLongRunningPoller(this.docIntelClient, initialResponse);
     const result = (await poller.pollUntilDone())
-      .body as AnalyzeOperationOutput; // get result body when the poll is finished
+      .body as AnalyzeOperationOutput;
 
     const markdownText =
       result.analyzeResult?.content ||

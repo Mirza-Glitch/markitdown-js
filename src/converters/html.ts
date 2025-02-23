@@ -1,15 +1,36 @@
 import { parse } from "node-html-parser";
 import fs from "fs";
 import CustomMarkdownConverter from "./customMarkdown";
-import DocumentConverter, {
-  type DocumentConverterResult,
-  type ConversionOptions,
-} from "./document";
+import DocumentConverter from "../converters/document";
+import type {
+  DocumentConverterResult,
+  ConversionOptions,
+} from "../types/document";
 
 /**
- * Converter for HTML files
+ * Converts HTML files to Markdown format.
+ * Handles both standalone HTML files and HTML content from other converters.
+ * Removes scripts and styles while preserving content structure.
+ * @extends DocumentConverter
  */
 export default class HtmlConverter extends DocumentConverter {
+  /**
+   * Converts an HTML file to Markdown format.
+   *
+   * @param {string} localPath - Path to the local HTML file
+   * @param {ConversionOptions} options - Conversion options
+   * @param {string} [options.fileExtension] - File extension (must be .html or .htm)
+   * @returns {Promise<DocumentConverterResult>} Conversion result or null if:
+   *   - File extension is not .html or .htm
+   *   - File cannot be read
+   *   - Conversion fails
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const result = await converter.convert('page.html');
+   * ```
+   */
   async convert(
     localPath: string,
     options: ConversionOptions
@@ -23,7 +44,22 @@ export default class HtmlConverter extends DocumentConverter {
     return this._convert(content);
   }
 
-  _convert(htmlContent: string): DocumentConverterResult {
+  /**
+   * Converts HTML content to Markdown format.
+   * Internal method used by both direct HTML conversion and other converters.
+   *
+   * @param {string} htmlContent - Raw HTML content to convert
+   * @returns {DocumentConverterResult} Object containing title and converted markdown content
+   *
+   * @remarks
+   * - Removes all <script> and <style> elements before conversion
+   * - Attempts to extract content from <body> first, falls back to entire document
+   * - Preserves document title if available
+   * - Trims whitespace from the final markdown
+   *
+   * @protected
+   */
+  protected _convert(htmlContent: string): DocumentConverterResult {
     // Parse the HTML
     const root = parse(htmlContent);
 

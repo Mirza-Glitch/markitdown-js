@@ -1,9 +1,10 @@
 import fs from "fs";
 import path from "path";
-import DocumentConverter, {
+import DocumentConverter from "../src/converters/document";
+import {
   type ConversionOptions,
   type DocumentConverterResult,
-} from "../src/converters/document";
+} from "../src/types/document";
 import Markitdown from "../src/markitdown";
 
 class CustomParser extends DocumentConverter {

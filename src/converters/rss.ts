@@ -1,18 +1,46 @@
 import fs from "fs/promises";
 import { parse } from "node-html-parser";
 import { DOMParser } from "xmldom";
-import type { DocumentConverterResult, ConversionOptions } from "./document";
+import type {
+  DocumentConverterResult,
+  ConversionOptions,
+} from "../types/document";
 import HtmlConverter from "./html";
 
 /**
- * Converter for RSS/Atom/XML feeds
+ * Converts RSS, Atom, and XML feeds to markdown format.
+ * Supports multiple feed formats with automatic format detection:
+ * - RSS feeds (RSS 2.0)
+ * - Atom feeds
+ * - Generic XML documents
+ *
+ * @extends HtmlConverter
  */
 export default class RSSConverter extends HtmlConverter {
   constructor() {
     super();
   }
 
-  override async convert(localPath: string, options: ConversionOptions) {
+  /**
+   * Converts a feed file to markdown format.
+   * Automatically detects the feed type (RSS, Atom, or XML) and processes accordingly.
+   *
+   * @param {string} localPath - Path to the feed file
+   * @param {ConversionOptions} options - Conversion options including file extension
+   * @returns {Promise<DocumentConverterResult>} Object containing formatted markdown with feed content, or returns null for unsupported file types or parsing failures
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const xmlResult = await converter.convert('feed.xml');
+   * const rssResult = await converter.convert('feed.rss');
+   * const atomResult = await converter.convert('feed.atom');
+   * ```
+   */
+  override async convert(
+    localPath: string,
+    options: ConversionOptions
+  ): Promise<DocumentConverterResult> {
     const extension = options.fileExtension || "".toLowerCase();
     if (![".xml", ".rss", ".atom"].includes(extension)) {
       return null;
@@ -42,8 +70,15 @@ export default class RSSConverter extends HtmlConverter {
     }
   }
 
-  /* Parse Atom feed */
-  private _parseAtomType(doc: Document) {
+  /**
+   * Parses an Atom feed document into markdown.
+   * Extracts feed metadata and entries, including titles, summaries, and content.
+   *
+   * @param {Document} doc - Parsed XML document
+   * @returns {DocumentConverterResult} Formatted markdown content
+   * @private
+   */
+  private _parseAtomType(doc: Document): DocumentConverterResult {
     try {
       const root = doc.getElementsByTagName("feed")[0];
       const title = this._getDataByTagName(root as HTMLElement, "title");
@@ -111,8 +146,15 @@ export default class RSSConverter extends HtmlConverter {
     }
   }
 
-  /* Parse RSS feed */
-  private _parseRssType(doc: Document) {
+  /**
+   * Parses an RSS feed document into markdown.
+   * Extracts channel metadata and items, including titles, descriptions, and content.
+   *
+   * @param {Document} doc - Parsed XML document
+   * @returns {DocumentConverterResult} Formatted markdown content
+   * @private
+   */
+  private _parseRssType(doc: Document): DocumentConverterResult {
     try {
       const root = doc.getElementsByTagName("rss")[0];
       const channels = root?.getElementsByTagName("channel") || [];
@@ -141,7 +183,6 @@ export default class RSSConverter extends HtmlConverter {
       if (channelUpdated) mdText += `Updated on: ${channelUpdated}\n`;
       if (channelDescription) mdText += `${channelDescription}\n`;
       if (channelLink) mdText += `ID: ${channelLink}\n`;
-
       // Iterate over each item in the RSS feed and extract the title, description, pubDate, content, and link
       for (const item of Array.from(items)) {
         const title = this._getDataByTagName(item as HTMLElement, "title");
@@ -175,8 +216,15 @@ export default class RSSConverter extends HtmlConverter {
     }
   }
 
-  /* Parse RSS feed */
-  private _parseXmlType(doc: Document) {
+  /**
+   * Parses a generic XML document into markdown.
+   * Creates a hierarchical markdown representation of the XML structure.
+   *
+   * @param {Document} doc - Parsed XML document
+   * @returns {DocumentConverterResult} Formatted markdown content
+   * @private
+   */
+  private _parseXmlType(doc: Document): DocumentConverterResult {
     try {
       const items = doc.lastChild as Element;
 
@@ -193,8 +241,15 @@ export default class RSSConverter extends HtmlConverter {
     }
   }
 
-  /* Parse XML node */
-  private _parseXmlNode(items: Element, tabCount = 0) {
+  /**
+   * Recursively parses XML nodes into a markdown list structure.
+   *
+   * @param {Element} items - XML element to parse
+   * @param {number} tabCount - Current indentation level
+   * @returns {string} Formatted markdown content
+   * @private
+   */
+  private _parseXmlNode(items: Element, tabCount: number = 0): string {
     let mdContent = "";
     let tabs = "  ".repeat(tabCount);
     const childNodes = Array.from(items.childNodes) as HTMLElement[];
@@ -225,18 +280,34 @@ export default class RSSConverter extends HtmlConverter {
     return mdContent;
   }
 
-  /* Parse content that might contain HTML */
-  private _parseContent(content: string) {
+  /**
+   * Parses HTML content within feed entries.
+   *
+   * @param {string} content - HTML content to parse
+   * @returns {string} Cleaned content
+   * @private
+   */
+  private _parseContent(content: string): string {
     try {
       const root = parse(content);
-      return this._convert(root.innerHTML);
+      return this._convert(root.innerHTML) as unknown as string;
     } catch (error) {
       return content;
     }
   }
 
-  /* Get data from first child element with given tag name */
-  private _getDataByTagName(element: HTMLElement, tagName: string) {
+  /**
+   * Extracts data from the first child element with the given tag name.
+   *
+   * @param {HTMLElement} element - Parent element to search
+   * @param {string} tagName - Tag name to find
+   * @returns {string | null} Content of the first matching element or null
+   * @private
+   */
+  private _getDataByTagName(
+    element: HTMLElement,
+    tagName: string
+  ): string | null {
     const nodes = element.getElementsByTagName(tagName);
     if (!nodes.length) return null;
 

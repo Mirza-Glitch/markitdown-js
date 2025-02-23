@@ -1,6 +1,6 @@
 {
   "name": "markitdown-js",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
   "main": "dist/markitdown.js",
   "description": "Convert documents to markdown text content. Originally inspired by microsoft's markitdown python library.",

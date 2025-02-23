@@ -1,11 +1,40 @@
 import fs from "fs";
 import mammoth from "mammoth";
 import HtmlConverter from "./html";
-import type { ConversionOptions } from "./document";
+import type { ConversionOptions } from "../types/document";
 
+/**
+ * Converts DOCX files to Markdown format via HTML intermediate conversion.
+ * Preserves document structure including headings, tables, and styling where possible.
+ * @extends HtmlConverter
+ */
 export default class DocxConverter extends HtmlConverter {
   /**
-   * Converts DOCX files to Markdown. Style information (e.g., headings) and tables are preserved where possible.
+   * Converts a DOCX file to Markdown format.
+   * Uses Mammoth.js to convert DOCX to HTML, then processes the HTML to Markdown.
+   *
+   * @param {string} localPath - Path to the local DOCX file
+   * @param {ConversionOptions} options - Conversion options
+   * @param {string} [options.fileExtension] - File extension (must be .docx)
+   * @param {Array<string>} [options.styleMap] - Custom style mappings for Mammoth.js conversion
+   * @returns {Promise<DocumentConverterResult>} Conversion result or null if:
+   *   - File is not a DOCX
+   *   - File cannot be read
+   *   - Conversion fails
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown({
+   *   styleMap: [
+   *     "p[style-name='Section Title'] => h1:fresh",
+   *     "p[style-name='Subsection Title'] => h2:fresh"
+   *   ]
+   * });
+   * const result = await converter.convert('document.docx');
+   * ```
+   *
+   * @throws {Error} If file reading or conversion process fails
+   * @override
    */
   override async convert(localPath: string, options: ConversionOptions) {
     // Bail if not a DOCX

@@ -3,77 +3,53 @@ import fs from "fs";
 import axios, { type AxiosInstance, type AxiosResponse } from "axios";
 import tmp from "tmp";
 import Ffmpeg from "fluent-ffmpeg";
-import DocumentConverter, {
-  type DocumentConverterResult,
-} from "./converters/document.js";
+import type { LlmCall, MarkItDownOptions } from "./types/markitdown";
+import type { DocumentConverterResult } from "./types/document";
+import DocumentConverter from "./converters/document";
 import PlainTextConverter from "./converters/plainText";
 import HtmlConverter from "./converters/html";
 import RSSConverter from "./converters/rss";
-import WikipediaConverter from "./converters/wikipedia.js";
-import YouTubeConverter from "./converters/youtube.js";
-import BingSerpConverter from "./converters/bingSerp.js";
+import WikipediaConverter from "./converters/wikipedia";
+import YouTubeConverter from "./converters/youtube";
+import BingSerpConverter from "./converters/bingSerp";
 import DocxConverter from "./converters/docx";
 import XlsxConverter from "./converters/xlsx";
-import PptxConverter from "./converters/pptx.js";
-import AudioConverter from "./converters/audio.js";
-import VideoConverter from "./converters/video.js";
+import PptxConverter from "./converters/pptx";
+import AudioConverter from "./converters/audio";
+import VideoConverter from "./converters/video";
 import ImageConverter from "./converters/image";
-import IpynbConverter from "./converters/ipynb.js";
-import PdfConverter from "./converters/pdf.js";
+import IpynbConverter from "./converters/ipynb";
+import PdfConverter from "./converters/pdf";
 import ZipConverter from "./converters/zip";
-import OutlookMsgConverter from "./converters/outlookMsg.js";
-import DocumentIntelligenceConverter from "./converters/documentIntelligence.js";
+import OutlookMsgConverter from "./converters/outlookMsg";
+import DocumentIntelligenceConverter from "./converters/documentIntelligence";
 
 declare global {
   var IS_FFMPEG_CAPABLE: boolean;
 }
 
-// TODO: Fix/Improve This Typing System
-type TextContent = {
-  type: "text";
-  text: string;
-};
-
-type ImageContent = {
-  type: "image_url";
-  image_url: {
-    url: string;
-  };
-};
-
-type MessageContent = TextContent | ImageContent;
-
-export type Message = {
-  role: "user" | "assistant" | "system";
-  content: MessageContent[];
-};
-
-export type LlmCallInputParams = {
-  messages?: Message[];
-  imageBase64?: string;
-  file?: fs.ReadStream;
-};
-
-export type LlmCall =
-  | ((params: LlmCallInputParams) => Promise<string | null>)
-  | null;
-
-export interface MarkItDownOptions {
-  requestsSession?: AxiosInstance;
-  llmCall?: LlmCall;
-  styleMap?: any;
-  docintelEndpoint?: string | null;
-}
-
 // Ffmpeg Support
 global.IS_FFMPEG_CAPABLE = false;
 
+/**
+ * MarkItDown is a document conversion utility that supports multiple file formats
+ * and provides conversion to markdown format.
+ * @class
+ */
 export default class MarkItDown {
   private _requestsSession: AxiosInstance;
   private _llmCall: LlmCall;
   private _styleMap: any;
   private _pageConverters: DocumentConverter[];
 
+  /**
+   * Creates a new instance of MarkItDown.
+   * @param {Object} options - Configuration options for the converter
+   * @param {AxiosInstance} [options.requestsSession=axios.create()] - Custom axios instance for HTTP requests
+   * @param {LlmCall} [options.llmCall=null] - Language model callback function
+   * @param {Object} [options.styleMap=null] - Custom style mapping for docx conversions
+   * @param {string} [options.docintelEndpoint=null] - Document intelligence API endpoint
+   */
   constructor({
     requestsSession = axios.create(),
     llmCall = null,
@@ -94,6 +70,10 @@ export default class MarkItDown {
       );
   }
 
+  /**
+   * Checks if FFmpeg is available in the system.
+   * @private
+   */
   private _checkFfmpeg(): void {
     Ffmpeg.getAvailableFormats((err, _formats) => {
       if (err)
@@ -104,6 +84,10 @@ export default class MarkItDown {
     });
   }
 
+  /**
+   * Registers all default document converters.
+   * @private
+   */
   private _registerDefaultConverters(): void {
     this.registerConverter(new PlainTextConverter());
     this.registerConverter(new HtmlConverter());
@@ -123,6 +107,13 @@ export default class MarkItDown {
     this.registerConverter(new OutlookMsgConverter());
   }
 
+  /**
+   * Converts a source to markdown format.
+   * @param {string | fs.ReadStream} source - The source to convert (URL, file path, or ReadStream)
+   * @param {Object} [options={}] - Conversion options
+   * @returns {Promise<DocumentConverterResult>} The conversion result
+   * @throws {Error} When the source type is unsupported
+   */
   async convert(
     source: string | fs.ReadStream,
     options: Record<string, any> = {}
@@ -135,7 +126,6 @@ export default class MarkItDown {
     if (typeof source === "string") {
       if (/^https?:\/\//.test(source) || source.startsWith("file://")) {
         options.url = source;
-
         return this.convertUrl(source, options);
       }
       return this.convertLocal(source, options);
@@ -146,6 +136,13 @@ export default class MarkItDown {
     throw new Error("Unsupported source type.");
   }
 
+  /**
+   * Converts a ReadStream to markdown.
+   * @param {fs.ReadStream} stream - The input stream to convert
+   * @param {Object} [options={}] - Conversion options
+   * @param {string} [options.fileExtension] - Optional file extension to help determine the converter
+   * @returns {Promise<DocumentConverterResult>} The conversion result
+   */
   async convertStream(
     stream: fs.ReadStream,
     options: { fileExtension?: string } = {}
@@ -182,6 +179,12 @@ export default class MarkItDown {
     return result;
   }
 
+  /**
+   * Converts a local file to markdown.
+   * @param {string} filePath - Path to the local file
+   * @param {Object} [options={}] - Conversion options
+   * @returns {Promise<DocumentConverterResult>} The conversion result
+   */
   async convertLocal(
     filePath: string,
     options: Record<string, any> = {}
@@ -190,6 +193,12 @@ export default class MarkItDown {
     return this._convert(filePath, extensions, options);
   }
 
+  /**
+   * Converts a URL to markdown.
+   * @param {string} url - The URL to convert
+   * @param {Object} [options={}] - Conversion options
+   * @returns {Promise<DocumentConverterResult>} The conversion result
+   */
   async convertUrl(
     url: string,
     options: Record<string, any> = {}
@@ -200,6 +209,12 @@ export default class MarkItDown {
     return this.convertResponse(response, options);
   }
 
+  /**
+   * Converts an Axios response to markdown.
+   * @param {AxiosResponse} response - The Axios response to convert
+   * @param {Object} [options={}] - Conversion options
+   * @returns {Promise<DocumentConverterResult>} The conversion result
+   */
   async convertResponse(
     response: AxiosResponse,
     options: Record<string, any> = {}
@@ -233,6 +248,15 @@ export default class MarkItDown {
     }
   }
 
+  /**
+   * Internal method to convert a file using the appropriate converter.
+   * @private
+   * @param {string} filePath - Path to the file to convert
+   * @param {string[]} extensions - Array of possible file extensions
+   * @param {Object} options - Conversion options
+   * @returns {Promise<DocumentConverterResult>} The conversion result
+   * @throws {Error} When no suitable converter is found
+   */
   private async _convert(
     filePath: string,
     extensions: string[],
@@ -257,6 +281,13 @@ export default class MarkItDown {
     throw new Error(`Cannot convert ${filePath}. No suitable converter found.`);
   }
 
+  /**
+   * Determines the file extensions to try for conversion.
+   * @private
+   * @param {string} filePath - Path to the file
+   * @param {Object} options - Options containing potential file extension
+   * @returns {string[]} Array of possible file extensions
+   */
   private _determineExtensions(
     filePath: string,
     options: Record<string, any>
@@ -265,6 +296,10 @@ export default class MarkItDown {
     return ext ? [ext] : [];
   }
 
+  /**
+   * Registers a new document converter.
+   * @param {DocumentConverter} converter - The converter to register
+   */
   registerConverter(converter: DocumentConverter): void {
     this._pageConverters.unshift(converter);
   }

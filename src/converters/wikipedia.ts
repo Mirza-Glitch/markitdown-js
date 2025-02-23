@@ -1,11 +1,15 @@
 import { parse } from "node-html-parser";
 import fs from "fs";
-import DocumentConverter, {
-  type DocumentConverterResult,
-  type ConversionOptions,
-} from "./document";
+import DocumentConverter from "./document";
+import type {
+  DocumentConverterResult,
+  ConversionOptions,
+} from "../types/document";
 import CustomMarkdownConverter from "./customMarkdown";
 
+/**
+ * Represents a section in a Wikipedia document with title, level, id, and content.
+ */
 interface Section {
   title: string;
   level?: number;
@@ -13,17 +17,29 @@ interface Section {
   content: string;
 }
 
-/** Handle Wikipedia pages separately, focusing only on the main document content. */
+/**
+ * WikipediaConverter class handles the conversion of Wikipedia HTML pages to Markdown format.
+ * This class specifically focuses on extracting and formatting the main content while removing
+ * unnecessary elements like references, edit sections, and other Wikipedia-specific markup.
+ * @extends DocumentConverter
+ */
 export default class WikipediaConverter extends DocumentConverter {
   private _turndown: CustomMarkdownConverter;
 
+  /**
+   * Initializes a new instance of WikipediaConverter and configures the markdown converter.
+   */
   constructor() {
     super();
     this._turndown = new CustomMarkdownConverter();
-
     this._configureTurndown();
   }
 
+  /**
+   * Configures the Turndown converter with Wikipedia-specific rules for handling
+   * images and references.
+   * @private
+   */
   private _configureTurndown() {
     // Better image handling
     this._turndown.addRule("image", {
@@ -55,6 +71,18 @@ export default class WikipediaConverter extends DocumentConverter {
     });
   }
 
+  /**
+   * Converts a Wikipedia HTML file to Markdown format.
+   * @param {string} localPath - The local file path to the Wikipedia HTML file
+   * @param {ConversionOptions} options - Conversion options including file extension and URL
+   * @returns {Promise<DocumentConverterResult>} The converted document or null if conversion fails
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const result = await converter.convert('https://en.wikipedia.org/wiki/Javascript');
+   * ```
+   */
   async convert(
     localPath: string,
     options: ConversionOptions
@@ -79,8 +107,6 @@ export default class WikipediaConverter extends DocumentConverter {
       return null;
     }
 
-    // Extract main content and title
-
     const root = parse(html);
     const titleElm = root.querySelector("span.mw-page-title-main");
     const bodyElm = root.querySelector(
@@ -88,7 +114,6 @@ export default class WikipediaConverter extends DocumentConverter {
     ) as unknown as HTMLElement;
     this.cleanupContent(bodyElm);
 
-    // Parse title and sections
     const content = {
       title: titleElm?.textContent?.trim() ?? "",
       sections: this.parseSections(bodyElm),
@@ -103,8 +128,12 @@ export default class WikipediaConverter extends DocumentConverter {
     };
   }
 
+  /**
+   * Removes unwanted elements from the Wikipedia content and cleans up the HTML structure.
+   * @param {HTMLElement} element - The root element containing Wikipedia content
+   * @private
+   */
   private cleanupContent(element: HTMLElement) {
-    // Remove unwanted elements first
     const selectorsToRemove = [
       ".mw-editsection",
       ".reference",
@@ -125,8 +154,7 @@ export default class WikipediaConverter extends DocumentConverter {
       });
     });
 
-    // Now remove all the elements after the "See also" heading to exclude the external links
-    // Find the "See also" heading
+    // Remove content after "See also" section
     const headings = element.querySelectorAll("h2");
     let seeAlsoHeading: HTMLHeadingElement | null = null;
 
@@ -139,44 +167,46 @@ export default class WikipediaConverter extends DocumentConverter {
 
     if (seeAlsoHeading && seeAlsoHeading.parentNode) {
       const parentElement = seeAlsoHeading.parentNode;
-
-      // Get the parent's parent to find siblings
       if (parentElement.parentNode) {
-        // Start from the parent element
         let currentElement = parentElement;
-
-        // Remove all next siblings of the parent
         while (currentElement.nextSibling) {
           const nextElement = currentElement.nextSibling;
           if (nextElement.parentNode) {
             nextElement.parentNode.removeChild(nextElement);
           }
         }
-
-        // Remove the parent element containing "See also" as well
         parentElement.parentNode.removeChild(parentElement);
       }
     }
   }
 
+  /**
+   * Creates an anchor ID from text by removing non-alphanumeric characters and converting to lowercase.
+   * @param {string} text - The text to convert to an anchor ID
+   * @returns {string} The formatted anchor ID
+   * @private
+   */
   private _createAnchorId(text: string) {
-    // Remove all non-alphanumeric characters and replace spaces with hyphens
     return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   }
 
+  /**
+   * Parses the Wikipedia content into sections with titles and content.
+   * @param {HTMLElement} mainContent - The main content element to parse
+   * @returns {Section[]} An array of parsed sections
+   * @private
+   */
   private parseSections(mainContent: HTMLElement) {
     const sections: Section[] = [];
     let currentSection: Section = { title: "", content: "" };
     let inLeadSection = true;
     let currentHtml = "";
 
-    // Iterate over each element in the main content
     mainContent.childNodes.forEach((element) => {
       const htmlElement = element as HTMLElement;
       if (!htmlElement.tagName) return;
 
       if (htmlElement.tagName.match(/^H[1-6]$/i)) {
-        // Process previous section
         if (currentHtml) {
           if (inLeadSection) {
             sections.push({
@@ -196,7 +226,6 @@ export default class WikipediaConverter extends DocumentConverter {
           currentHtml = "";
         }
 
-        // Start new section
         const headingText =
           htmlElement.querySelector(".mw-headline")?.textContent ||
           htmlElement.textContent?.trim();
@@ -217,7 +246,6 @@ export default class WikipediaConverter extends DocumentConverter {
       }
     });
 
-    // Add the last section
     if (currentHtml) {
       const content = this._turndown.convert(currentHtml);
       sections.push({
@@ -230,6 +258,12 @@ export default class WikipediaConverter extends DocumentConverter {
     return sections;
   }
 
+  /**
+   * Generates a table of contents from the document headings.
+   * @param {HTMLElement} root - The root element containing headings
+   * @returns {string} Markdown formatted table of contents
+   * @private
+   */
   private generateTableOfContents(root: HTMLElement) {
     let toc = "## Table of Contents\n\n";
 
@@ -246,19 +280,22 @@ export default class WikipediaConverter extends DocumentConverter {
     return toc + "\n";
   }
 
+  /**
+   * Generates the final Markdown document from the parsed content.
+   * @param {{title: string, sections: Section[]}} content - The parsed document content
+   * @param {HTMLElement} root - The root HTML element
+   * @returns {string} The complete Markdown document
+   * @private
+   */
   private generateMarkdown(
     content: { title: string; sections: Section[] },
     root: HTMLElement
   ) {
     let markdown = "";
 
-    // Add title with anchor
     markdown += `# ${content.title}\n\n`;
-
-    // Add table of contents
     markdown += this.generateTableOfContents(root);
 
-    // Add sections
     content.sections.forEach((section) => {
       if (section.title) {
         const headingLevel = "#".repeat(Math.min(section.level ?? 0, 6));

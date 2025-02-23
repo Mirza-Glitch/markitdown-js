@@ -1,14 +1,38 @@
 import fs from "fs";
 import kenjiunoMsgReader from "@kenjiuno/msgreader";
-import DocumentConverter, {
-  type ConversionOptions,
-  type DocumentConverterResult,
-} from "./document";
+import DocumentConverter from "../converters/document";
+import type {
+  DocumentConverterResult,
+  ConversionOptions,
+} from "../types/document";
 
-const MsgReader = ("default" in kenjiunoMsgReader ? kenjiunoMsgReader.default : kenjiunoMsgReader) as unknown as typeof kenjiunoMsgReader; // @kenjiuno/msgreader exports an object with key "default" after built which we need to handle in our cjs and esm version just like node-pptx-parser
+// @kenjiuno/msgreader exports an object with key "default" for commonjs which we need to handle in our cjs version
+const MsgReader = ("default" in kenjiunoMsgReader
+  ? kenjiunoMsgReader.default
+  : kenjiunoMsgReader) as unknown as typeof kenjiunoMsgReader;
 
-
+/**
+ * Converts Outlook MSG files (.msg) to markdown format.
+ * Extracts email metadata (sender, receiver, subject) and content including attachments.
+ *
+ * @extends DocumentConverter
+ */
 export default class OutlookMsgConverter extends DocumentConverter {
+  /**
+   * Converts an Outlook MSG file to markdown format.
+   * The resulting markdown includes email metadata, body content, and attachment information.
+   *
+   * @param {string} localPath - Path to the .msg file
+   * @param {ConversionOptions} options - Conversion options including file extension
+   * @returns {Promise<DocumentConverterResult>} Object containing email subject as title and formatted markdown as textContent
+   * @throws {Error} If the file cannot be read or parsed
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const result = await converter.convert('outlook.msg');
+   * ```
+   */
   async convert(
     localPath: string,
     options: ConversionOptions

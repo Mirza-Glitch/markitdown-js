@@ -1,8 +1,9 @@
 import fs from "fs";
-import DocumentConverter, {
-  type ConversionOptions,
-  type DocumentConverterResult,
-} from "./document";
+import DocumentConverter from "../converters/document";
+import type {
+  ConversionOptions,
+  DocumentConverterResult,
+} from "../types/document";
 
 // Define types for Jupyter Notebook structure
 type NotebookMetadata = {
@@ -30,7 +31,25 @@ type JupyterNotebook = {
   cells: NotebookCell[];
 };
 
+/**
+ * Converter class for Jupyter Notebook (.ipynb) files to markdown format.
+ * @extends DocumentConverter
+ */
 export default class IpynbConverter extends DocumentConverter {
+  /**
+   * Converts a Jupyter Notebook file to markdown format.
+   *
+   * @param {string} localPath - The local file system path to the .ipynb file
+   * @param {ConversionOptions} options - Conversion options including file extension
+   * @returns {Promise<DocumentConverterResult>} A promise that resolves to the conversion result
+   * @throws {Error} If the file cannot be read or parsed
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const result = await converter.convert('notebook.ipynb');
+   * ```
+   */
   async convert(
     localPath: string,
     options: ConversionOptions
@@ -39,12 +58,20 @@ export default class IpynbConverter extends DocumentConverter {
     if (extension.toLowerCase() !== ".ipynb") {
       return null;
     }
-
     const notebookContent = JSON.parse(fs.readFileSync(localPath, "utf-8"));
     return this._convert(notebookContent);
   }
 
-  _convert(notebookContent: JupyterNotebook): DocumentConverterResult {
+  /**
+   * Internal method to convert parsed notebook content to markdown format.
+   * Processes both markdown and code cells, including their outputs.
+   *
+   * @param {JupyterNotebook} notebookContent - Parsed Jupyter notebook content
+   * @returns {DocumentConverterResult} Converted document with title and markdown content
+   * @throws {Error} If conversion process fails
+   * @private
+   */
+  private _convert(notebookContent: JupyterNotebook): DocumentConverterResult {
     try {
       let mdOutput: string[] = [];
       let title: string | null = null;
@@ -52,7 +79,6 @@ export default class IpynbConverter extends DocumentConverter {
       notebookContent.cells.forEach((cell) => {
         if (cell.cell_type === "markdown") {
           const markdownText = cell.source.join("");
-
           // Set the first `# Heading` as title if not already found
           if (!title) {
             for (const line of cell.source) {
@@ -62,11 +88,9 @@ export default class IpynbConverter extends DocumentConverter {
               }
             }
           }
-
           mdOutput.push(markdownText);
         } else if (cell.cell_type === "code") {
           mdOutput.push("```python\n" + cell.source.join("") + "\n```");
-
           // Process output (if any)
           if (cell.outputs && cell.outputs.length > 0) {
             cell.outputs.forEach((output) => {

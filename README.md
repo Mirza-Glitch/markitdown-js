@@ -84,7 +84,7 @@ console.log(result);
 // }
 ```
 
-The original Microsoft's [Markitdown](https://github.com/microsoft/markitdown) library uses Llm instance to get the description of the image and audio transcript, where you'd need to pass the llm client and llm model instance to the constructor. The library expects Llm instance to respond just like OpenAI's `createChatCompletion` response.
+The original Microsoft's [Markitdown](https://github.com/microsoft/markitdown) library uses Llm instance to get the description of the image, where you'd need to pass the llm client and llm model instance to the constructor. The library expects Llm instance to respond just like OpenAI's `createChatCompletion` response.
 
 You may sometimes need to use your custom Llm client and model instance. to overcome this issue, markitdown-js takes a llmCall function as an option to the constructor which is used to get the description of the image and audio transcript.
 
@@ -139,17 +139,6 @@ const converter = new Markitdown({
 
 Check the [Examples Folder](https://github.com/Mirza-Glitch/markitdown-js/tree/main/examples) for more examples.
 
-## 🔮 Future Plans
-
-Currently, the library is in the early stage of development and it needs improvements in typescript types, code improvements etc. Here are the some features that are planned to be added later:
-
-- Adding JSDoc to the codebase
-- Fixing/Improving typesrcipt types for llmCall, for places with @ts-expect-error annotations
-- Adding Converters for more file types, including converters for Google Docs, Sheets, and Slides.
-- Improving the codebase
-
-If you think you can help, please feel free to contribute to the project.
-
 ## 🤝 Contributing
 
 Contributions are highly appreciated! If you'd like to contribute, please:
@@ -164,12 +153,12 @@ Your contributions are valuable! It helps the community to improve the library a
 
 ## 🛠 Support
 
-If you find a bug or need help, feel free to [open an issue](https://github.com/Mirza-Glitch/migodb/issues).
+If you find a bug or need help, feel free to [open an issue](https://github.com/Mirza-Glitch/markitdown-js/issues).
 
 ## 📜 License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/Mirza-Glitch/markitdown-js/blob/main/LICENSE) file for details.
 
-## 🎉 Acknowledgments
+## 🎉 Acknowledgment
 
 Originally inspired by [microsft/markitdown](https://github.com/microsoft/markitdown).

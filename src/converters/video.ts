@@ -2,10 +2,54 @@ import fs from "fs";
 import tmp from "tmp";
 import Ffmpeg from "fluent-ffmpeg";
 import AudioConverter from "./audio";
-import type { ConversionOptions } from "./document";
+import type {
+  ConversionOptions,
+  DocumentConverterResult,
+} from "../types/document";
 
+/**
+ * Converts video files to markdown format, extracting metadata and optionally transcribing audio.
+ * Supports MP4, MKV, WebM, and MPEG formats.
+ *
+ * Features:
+ * - Extracts video metadata (title, artist, date, etc.)
+ * - Transcribes audio content when FFmpeg is available
+ * - Inherits audio processing capabilities from AudioConverter
+ *
+ * @extends AudioConverter
+ */
 export default class VideoConverter extends AudioConverter {
-  override async convert(localPath: string, options: ConversionOptions) {
+  /**
+   * Converts a video file to markdown format.
+   * Extracts available metadata and optionally transcribes audio content if FFmpeg is available.
+   *
+   * @param {string} localPath - Path to the video file
+   * @param {ConversionOptions} options - Conversion options including:
+   *   - fileExtension: The file extension (must be .mp4, .mkv, .webm, or .mpeg)
+   *   - llmCall: Optional function for audio transcription
+   * @returns {Promise<DocumentConverterResult>} Object containing extracted metadata and optional transcript,or returns null for unsupported file types
+   * @throws {Error} If file processing or transcription fails
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown({
+   *   llmCall: async (params) => {
+   *     if(params.file) {
+   *       const completion = await openai.audio.transcriptions.create({
+   *         model: "whisper-1",
+   *         file: params.file
+   *       });
+   *       return completion.text;
+   *     }
+   *   }
+   * });
+   * const result = await converter.convert('audio.wav');
+   * ```
+   */
+  override async convert(
+    localPath: string,
+    options: ConversionOptions
+  ): Promise<DocumentConverterResult> {
     const supportedVideoExtensions = [".mp4", ".mkv", ".webm", ".mpeg"];
     if (!supportedVideoExtensions.includes(options.fileExtension)) return null;
     let mdContent = "";

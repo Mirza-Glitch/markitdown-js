@@ -1,10 +1,32 @@
 import fs from "fs";
 import { parse } from "node-html-parser";
-import type { ConversionOptions, DocumentConverterResult } from "./document";
+import type {
+  ConversionOptions,
+  DocumentConverterResult,
+} from "../types/document";
 import DocumentConverter from "./document";
 
-// Handle YouTube videos separately, focusing only on the main document content.
+/**
+ * YouTubeConverter handles the conversion of YouTube video pages to Markdown format.
+ * Extracts video metadata, description, and transcript when available.
+ * Supports both regular YouTube videos and YouTube Shorts.
+ * @extends DocumentConverter
+ */
 export default class YouTubeConverter extends DocumentConverter {
+  /**
+   * Converts a YouTube video page to Markdown format.
+   * Extracts video title, metadata, description, and transcript (if available).
+   *
+   * @param {string} localPath - The local file path to the YouTube page HTML file
+   * @param {ConversionOptions} options - Conversion options including file extension and URL
+   * @returns {Promise<DocumentConverterResult>} Object containing the converted markdown content, or null if the file is not a YouTube video page
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const result = await converter.convert("https://www.youtube.com/watch?v=abc123");
+   * ```
+   */
   async convert(
     localPath: string,
     options: ConversionOptions
@@ -26,7 +48,7 @@ export default class YouTubeConverter extends DocumentConverter {
     const htmlContent = fs.readFileSync(localPath, "utf-8");
     const root = parse(htmlContent);
 
-    // Read metadata
+    // Extract and process metadata
     const metadata: Record<string, string> = {
       title: root.querySelector("title")?.text || "",
     };
@@ -35,16 +57,14 @@ export default class YouTubeConverter extends DocumentConverter {
         meta.getAttribute("property") ||
         meta.getAttribute("name") ||
         meta.getAttribute("itemprop");
-      if (attr) {
-        // Only allow known metadata keys to be set
-        if (attr in metadata) {
-          metadata[attr as keyof typeof metadata] =
-            meta.getAttribute("content") || "";
-        }
+      // Only allow known metadata keys to be set
+      if (attr && attr in metadata) {
+        metadata[attr as keyof typeof metadata] =
+          meta.getAttribute("content") || "";
       }
     });
 
-    // Extract description from script
+    // Extract description from embedded script data
     try {
       root.querySelectorAll("script").forEach((script) => {
         const content = script.text;
@@ -72,6 +92,7 @@ export default class YouTubeConverter extends DocumentConverter {
       console.error("Error parsing description:", err);
     }
 
+    // Construct markdown output
     let webpageText = "# YouTube\n";
 
     const title = this._get(metadata, ["title", "og:title", "name"]) || "";
@@ -79,6 +100,7 @@ export default class YouTubeConverter extends DocumentConverter {
       webpageText += `\n## ${title}\n`;
     }
 
+    // Add video statistics
     let stats = "";
     const views = this._get(metadata, ["interactionCount"]);
     if (views) stats += `- **Views:** ${views}\n`;
@@ -91,12 +113,13 @@ export default class YouTubeConverter extends DocumentConverter {
 
     if (stats) webpageText += `\n### Video Metadata\n${stats}\n`;
 
+    // Add video description
     const description = this._get(metadata, ["description", "og:description"]);
     if (description) {
       webpageText += `\n### Description\n${description}\n`;
     }
 
-    // Get transcript if possible
+    // Get transcript if Possible
     let transcriptText = "";
     const parsedUrl = new URL(url);
     const videoId = parsedUrl.searchParams.get("v");
@@ -127,6 +150,15 @@ export default class YouTubeConverter extends DocumentConverter {
     };
   }
 
+  /**
+   * Retrieves a value from metadata using a list of possible keys.
+   *
+   * @param {Record<string, any>} metadata - The metadata object to search in
+   * @param {string[]} keys - Array of possible keys to look for
+   * @param {any} defaultValue - Value to return if no key is found
+   * @returns {any} The first found value or the default value
+   * @private
+   */
   private _get(
     metadata: Record<string, any>,
     keys: string[],
@@ -142,6 +174,14 @@ export default class YouTubeConverter extends DocumentConverter {
     return defaultValue;
   }
 
+  /**
+   * Recursively searches for a specific key in a nested object or array.
+   *
+   * @param {any} obj - The object or array to search in
+   * @param {string} key - The key to search for
+   * @returns {any} The value associated with the key if found, null otherwise
+   * @private
+   */
   private _findKey(obj: any, key: string): any {
     // If the object is an array, iterate over each item in the array
     // If the item is an object, recursively search for the key in the item

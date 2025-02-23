@@ -1,12 +1,38 @@
 import nodePptxParser from "node-pptx-parser";
-import type { ConversionOptions, DocumentConverterResult } from "./document";
+import type {
+  ConversionOptions,
+  DocumentConverterResult,
+} from "../types/document";
 import DocumentConverter from "./document";
 
-const PptxParser = ("default" in nodePptxParser ? nodePptxParser.default : nodePptxParser) as unknown as typeof nodePptxParser; // node-pptx-parser exports an object with key "default" for commonjs which we need to handle in our cjs version
+// node-pptx-parser exports an object with key "default" for commonjs which we need to handle in our cjs version just like @kenjiuno/msgreader package.
+const PptxParser = ("default" in nodePptxParser
+  ? nodePptxParser.default
+  : nodePptxParser) as unknown as typeof nodePptxParser;
 
+/**
+ * Converts PowerPoint PPTX files to markdown format.
+ * Only supports .pptx files (modern PowerPoint format), not .ppt files.
+ * Each slide is converted to a markdown section with its text content preserved.
+ *
+ * @extends DocumentConverter
+ */
 export default class PptxConverter extends DocumentConverter {
   /**
-   * Converts PPTX files to Markdown, with each slide presented as a separate Markdown table.
+   * Converts a PPTX file to markdown format.
+   * Extracts text from each slide and organizes them in order.
+   * Slides are sorted by their ID to maintain presentation order.
+   *
+   * @param {string} localPath - Path to the PPTX file
+   * @param {ConversionOptions} options - Conversion options including file extension
+   * @returns {Promise<DocumentConverterResult>} Object containing formatted markdown as textContent (title is null), or returns null for unsupported file types (.ppt files or non-PowerPoint files)
+   * @throws {Error} If the file cannot be read or parsed
+   *
+   * @example
+   * ```typescript
+   * const converter = new Markitdown();
+   * const result = await converter.convert('presentation.pptx');
+   * ```
    */
   async convert(
     localPath: string,
