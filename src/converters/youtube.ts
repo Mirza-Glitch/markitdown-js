@@ -126,17 +126,25 @@ export default class YouTubeConverter extends DocumentConverter {
     const shortId = parsedUrl.pathname.split("/").pop();
     if (videoId || shortId) {
       try {
-        const response = await options.requestsSession?.get(
-          `https://www.youtubetranscript.com/?server_vid2=${videoId || shortId}`
+        await this.retryOperation(
+          async () => {
+            const response = await options.requestsSession?.get(
+              `https://www.youtubetranscript.com/?server_vid2=${
+                videoId || shortId
+              }`
+            );
+            const transcript = parse(response?.data);
+            const transcriptTexts: string[] = [];
+            transcript.querySelectorAll("transcript text").forEach((text) => {
+              transcriptTexts.push(text.innerText);
+            });
+            transcriptText = transcriptTexts.join(" ");
+          },
+          3,
+          2000
         );
-        const transcript = parse(response?.data);
-        const transcriptTexts: string[] = [];
-        transcript.querySelectorAll("transcript text").forEach((text) => {
-          transcriptTexts.push(text.innerText);
-        });
-        transcriptText = transcriptTexts.join(" ");
       } catch (err) {
-        console.error("Error fetching transcript:", err);
+        console.error("Error fetching transcript after retries:", err);
       }
     }
 
@@ -151,6 +159,39 @@ export default class YouTubeConverter extends DocumentConverter {
   }
 
   /**
+   * Retries an operation with specified number of attempts and delay between retries
+   *
+   * @param {Function} operation - The async function to retry
+   * @param {number} retries - Number of retry attempts
+   * @param {number} delay - Delay between retries in milliseconds
+   * @returns {Promise<any>} Result of the operation if successful
+   * @throws {Error} If all retry attempts fail
+   * @private
+   */
+  private async retryOperation(
+    operation: Function,
+    retries: number = 3,
+    delay: number = 2000
+  ): Promise<void> {
+    let lastError;
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        const err = error as Error;
+        console.log(`Attempt ${attempt + 1} failed: ${err.message}`);
+        lastError = err;
+        if (attempt < retries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+    throw new Error(
+      `Operation failed after ${retries} attempts: ${lastError?.message}`
+    );
+  }
+
+  /**
    * Retrieves a value from metadata using a list of possible keys.
    *
    * @param {Record<string, any>} metadata - The metadata object to search in
@@ -162,8 +203,8 @@ export default class YouTubeConverter extends DocumentConverter {
   private _get(
     metadata: Record<string, any>,
     keys: string[],
-    defaultValue = null
-  ) {
+    defaultValue: any = null
+  ): string {
     // Iterate over each key in the keys array
     // If the key exists in the metadata, return the value
     for (const key of keys) {
@@ -182,7 +223,7 @@ export default class YouTubeConverter extends DocumentConverter {
    * @returns {any} The value associated with the key if found, null otherwise
    * @private
    */
-  private _findKey(obj: any, key: string): any {
+  private _findKey(obj: any, key: string): Record<string, any> | null {
     // If the object is an array, iterate over each item in the array
     // If the item is an object, recursively search for the key in the item
     // If the key is found, return the value
