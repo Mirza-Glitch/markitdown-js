@@ -34,7 +34,41 @@ global.IS_FFMPEG_CAPABLE = false;
 /**
  * MarkItDown is a document conversion utility that supports multiple file formats
  * and provides conversion to markdown format.
+ *
  * @class
+ *
+ * @example
+ * ```typescript
+ * const markitdown = new MarkItDown({
+ *   llmCall: async (params) => {
+ *     const openai = new OpenAI();
+ *     if(params.file) {
+ *       const completion = await openai.audio.transcriptions.create({
+ *         model: "whisper-1",
+ *         file: params.file
+ *       });
+ *       return completion.text;
+ *     } else if(params.messages) {
+ *       const completion = await openai.chat.completions.create({
+ *         model: "gpt-4o",
+ *         messages: params.messages
+ *       });
+ *       return completion.text;
+ *     } else {
+ *       return null;
+ *     }
+ *   },
+ *   styleMap: [
+ *     "p[style-name='Section Title'] => h1:fresh",
+ *     "p[style-name='Subsection Title'] => h2:fresh"
+ *   ],
+ *   docintelEndpoint: 'https://your-endpoint.cognitiveservices.azure.com/'
+ * });
+ * let docxResult = await markitdown.convert('document.docx');
+ * let pdfResult = await markitdown.convert('invoice.pdf');
+ * let pptxResult = await markitdown.convert('presentation.pptx');
+ * let imageOcrResult = await markitdown.convert('image.png');
+ * ```
  */
 export default class MarkItDown {
   private _requestsSession: AxiosInstance;
@@ -137,7 +171,7 @@ export default class MarkItDown {
   }
 
   /**
-   * Converts a ReadStream to markdown.
+   * Converts a File ReadStream to markdown.
    * @param {fs.ReadStream} stream - The input stream to convert
    * @param {Object} [options={}] - Conversion options
    * @param {string} [options.fileExtension] - Optional file extension to help determine the converter
@@ -194,7 +228,7 @@ export default class MarkItDown {
   }
 
   /**
-   * Converts a URL to markdown.
+   * Fetches a URL as a stream and converts it into markdown using convertResponse.
    * @param {string} url - The URL to convert
    * @param {Object} [options={}] - Conversion options
    * @returns {Promise<DocumentConverterResult>} The conversion result
@@ -308,3 +342,27 @@ export default class MarkItDown {
     this._pageConverters.unshift(converter);
   }
 }
+
+export {
+  MarkItDown,
+  DocumentConverter,
+  PlainTextConverter,
+  HtmlConverter,
+  RSSConverter,
+  WikipediaConverter,
+  YouTubeConverter,
+  BingSerpConverter,
+  DocxConverter,
+  XlsxConverter,
+  PptxConverter,
+  AudioConverter,
+  VideoConverter,
+  ImageConverter,
+  IpynbConverter,
+  PdfConverter,
+  ZipConverter,
+  OutlookMsgConverter,
+  DocumentIntelligenceConverter,
+};
+export { default as CustomMarkdownConverter } from "./converters/customMarkdown";
+export { default as MediaConverter } from "./converters/media";

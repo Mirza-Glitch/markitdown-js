@@ -21,7 +21,22 @@ interface Section {
  * WikipediaConverter class handles the conversion of Wikipedia HTML pages to Markdown format.
  * This class specifically focuses on extracting and formatting the main content while removing
  * unnecessary elements like references, edit sections, and other Wikipedia-specific markup.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const wikipediaConverter = new WikipediaConverter();
+ * // first fetch and save the search results in a HTML file
+ * let result = await wikipediaConverter.convert("wikipediaFile.html", {
+ *   fileExtension: ".html",
+ *   url: "https://en.wikipedia.org/wiki/Javascript"
+ * })
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('https://en.wikipedia.org/wiki/Javascript');
+ * ```
  */
 export default class WikipediaConverter extends DocumentConverter {
   private _turndown: CustomMarkdownConverter;
@@ -78,12 +93,6 @@ export default class WikipediaConverter extends DocumentConverter {
    * @param {string} localPath - The local file path to the Wikipedia HTML file
    * @param {ConversionOptions} options - Conversion options including file extension and URL
    * @returns {Promise<DocumentConverterResult>} The converted document or null if conversion fails
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('https://en.wikipedia.org/wiki/Javascript');
-   * ```
    */
   async convert(
     localPath: string,
@@ -188,7 +197,7 @@ export default class WikipediaConverter extends DocumentConverter {
    * @returns {string} The formatted anchor ID
    * @private
    */
-  private _createAnchorId(text: string) {
+  private _createAnchorId(text: string): string {
     return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   }
 
@@ -198,7 +207,7 @@ export default class WikipediaConverter extends DocumentConverter {
    * @returns {Section[]} An array of parsed sections
    * @private
    */
-  private parseSections(mainContent: HTMLElement) {
+  private parseSections(mainContent: HTMLElement): Section[] {
     const sections: Section[] = [];
     let currentSection: Section = { title: "", content: "" };
     let inLeadSection = true;
@@ -266,7 +275,7 @@ export default class WikipediaConverter extends DocumentConverter {
    * @returns {string} Markdown formatted table of contents
    * @private
    */
-  private generateTableOfContents(root: HTMLElement) {
+  private generateTableOfContents(root: HTMLElement): string {
     let toc = "## Table of Contents\n\n";
 
     root?.querySelectorAll(".mw-heading").forEach((el) => {
@@ -292,7 +301,7 @@ export default class WikipediaConverter extends DocumentConverter {
   private generateMarkdown(
     content: { title: string; sections: Section[] },
     root: HTMLElement
-  ) {
+  ): string {
     let markdown = "";
 
     markdown += `# ${content.title}\n\n`;

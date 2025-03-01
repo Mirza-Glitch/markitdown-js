@@ -1,13 +1,38 @@
 import fs from "fs";
 import mammoth from "mammoth";
 import HtmlConverter from "./html";
-import type { ConversionOptions } from "../types/document";
+import type {
+  ConversionOptions,
+  DocumentConverterResult,
+} from "../types/document";
 import DocumentConverter from "./document";
 
 /**
  * Converts DOCX files to Markdown format via HTML intermediate conversion.
  * Preserves document structure including headings, tables, and styling where possible.
+ *
  * @extends HtmlConverter
+ *
+ * @example
+ * ```typescript
+ * const docxConverter = new DocxConverter();
+ * let result = await docxConverter.convert('document.docx', {
+ *   fileExtension: '.docx',
+ *   styleMap: [
+ *     "p[style-name='Section Title'] => h1:fresh",
+ *     "p[style-name='Subsection Title'] => h2:fresh"
+ *   ]
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown({
+ *   styleMap: [
+ *     "p[style-name='Section Title'] => h1:fresh",
+ *     "p[style-name='Subsection Title'] => h2:fresh"
+ *   ]
+ * });
+ * let result = await converter.convert('document.docx');
+ * ```
  */
 export default class DocxConverter extends HtmlConverter {
   constructor(
@@ -28,21 +53,13 @@ export default class DocxConverter extends HtmlConverter {
    *   - File cannot be read
    *   - Conversion fails
    *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown({
-   *   styleMap: [
-   *     "p[style-name='Section Title'] => h1:fresh",
-   *     "p[style-name='Subsection Title'] => h2:fresh"
-   *   ]
-   * });
-   * const result = await converter.convert('document.docx');
-   * ```
-   *
    * @throws {Error} If file reading or conversion process fails
    * @override
    */
-  override async convert(localPath: string, options: ConversionOptions) {
+  override async convert(
+    localPath: string,
+    options: ConversionOptions
+  ): Promise<DocumentConverterResult> {
     // Bail if not a DOCX
     const extension = options.fileExtension || "";
     if (extension.toLowerCase() !== ".docx") {

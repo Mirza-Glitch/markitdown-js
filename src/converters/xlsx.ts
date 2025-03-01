@@ -8,7 +8,20 @@ import DocumentConverter from "./document";
 /**
  * XlsxConverter handles the conversion of Excel files (XLSX/XLS) to Markdown format.
  * Each sheet in the workbook is converted to a Markdown table with proper formatting.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const xlsxConverter = new XlsxConverter();
+ * let result = await xlsxConverter.convert("file.xlsx", {
+ *   fileExtension: ".xlsx"
+ * })
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert("file.xlsx");
+ * ```
  */
 export default class XlsxConverter extends DocumentConverter {
   constructor(
@@ -24,12 +37,6 @@ export default class XlsxConverter extends DocumentConverter {
    * @param {string} localPath - The local file path to the Excel file
    * @param {ConversionOptions} options - Conversion options including file extension
    * @returns {Promise<DocumentConverterResult>} Object containing the converted markdown content, or returns null if the file is not an Excel file
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert("file.xlsx");
-   * ```
    */
   override async convert(
     localPath: string,

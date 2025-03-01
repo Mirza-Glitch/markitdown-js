@@ -9,7 +9,42 @@ import type { LlmCall } from "../types/markitdown";
 /**
  * Converter for audio files that extracts metadata and generates transcriptions.
  * Supports .m4a, .mp3, .mpga, and .wav formats.
+ *
  * @extends MediaConverter
+ *
+ *    * @example
+ * ```typescript
+ *
+ * const AudioConverter = new AudioConverter();
+ * let result = await AudioConverter.convert('audio.wav', {
+ *   fileExtension: '.wav'
+ *   llmCall: async (params) => {
+ *     if(params.file) {
+ *       const completion = await openai.audio.transcriptions.create({
+ *         model: "whisper-1",
+ *         file: params.file
+ *       });
+ *       return completion.text;
+ *     }
+ *     return null;
+ *   }
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown({
+ *   llmCall: async (params) => {
+ *     if(params.file) {
+ *       const completion = await openai.audio.transcriptions.create({
+ *         model: "whisper-1",
+ *         file: params.file
+ *       });
+ *       return completion.text;
+ *     }
+ *     return null;
+ *   }
+ * });
+ * let result = await converter.convert('audio.wav');
+ * ```
  */
 export default class AudioConverter extends MediaConverter {
   /**
@@ -19,22 +54,6 @@ export default class AudioConverter extends MediaConverter {
    * @param {string} options.fileExtension - The file extension of the audio file
    * @param {LlmCall} [options.llmCall] - Callback function for audio transcription
    * @returns {Promise<DocumentConverterResult>} The conversion result or null if file type not supported
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown({
-   *   llmCall: async (params) => {
-   *     if(params.file) {
-   *       const completion = await openai.audio.transcriptions.create({
-   *         model: "whisper-1",
-   *         file: params.file
-   *       });
-   *       return completion.text;
-   *     }
-   *   }
-   * });
-   * const result = await converter.convert('audio.wav');
-   * ```
    * @override
    */
   override async convert(

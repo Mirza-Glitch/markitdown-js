@@ -11,7 +11,18 @@ import type {
  * Converts HTML files to Markdown format.
  * Handles both standalone HTML files and HTML content from other converters.
  * Removes scripts and styles while preserving content structure.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const htmlConverter = new HtmlConverter();
+ * let result = await htmlConverter.convert('page.html', { fileExtension: '.html' });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('page.html');
+ * ```
  */
 export default class HtmlConverter extends DocumentConverter {
   constructor(
@@ -29,12 +40,6 @@ export default class HtmlConverter extends DocumentConverter {
    *   - File extension is not .html or .htm
    *   - File cannot be read
    *   - Conversion fails
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('page.html');
-   * ```
    */
   async convert(
     localPath: string,

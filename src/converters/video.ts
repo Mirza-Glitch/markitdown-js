@@ -17,6 +17,37 @@ import type {
  * - Inherits audio processing capabilities from AudioConverter
  *
  * @extends AudioConverter
+ *
+ * @example
+ * ```typescript
+ * const videoConverter = new VideoConverter();
+ * let result = await videoConverter.convert('audio.wav', {
+ *   fileExtension: ".wav",
+ *   llmCall: async (params) => {
+ *     if(params.file) {
+ *       const completion = await openai.audio.transcriptions.create({
+ *         model: "whisper-1",
+ *         file: params.file
+ *       });
+ *       return completion.text;
+ *     }
+ *   }
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown({
+ *   llmCall: async (params) => {
+ *     if(params.file) {
+ *       const completion = await openai.audio.transcriptions.create({
+ *         model: "whisper-1",
+ *         file: params.file
+ *       });
+ *       return completion.text;
+ *     }
+ *   }
+ * });
+ * let result = await converter.convert('audio.wav');
+ * ```
  */
 export default class VideoConverter extends AudioConverter {
   /**
@@ -29,22 +60,6 @@ export default class VideoConverter extends AudioConverter {
    *   - llmCall: Optional function for audio transcription
    * @returns {Promise<DocumentConverterResult>} Object containing extracted metadata and optional transcript,or returns null for unsupported file types
    * @throws {Error} If file processing or transcription fails
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown({
-   *   llmCall: async (params) => {
-   *     if(params.file) {
-   *       const completion = await openai.audio.transcriptions.create({
-   *         model: "whisper-1",
-   *         file: params.file
-   *       });
-   *       return completion.text;
-   *     }
-   *   }
-   * });
-   * const result = await converter.convert('audio.wav');
-   * ```
    */
   override async convert(
     localPath: string,

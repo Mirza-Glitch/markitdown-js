@@ -10,7 +10,22 @@ import DocumentConverter from "./document";
  * YouTubeConverter handles the conversion of YouTube video pages to Markdown format.
  * Extracts video metadata, description, and transcript when available.
  * Supports both regular YouTube videos and YouTube Shorts.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const ytConverter = new YouTubeConverter();
+ * // first fetch and save the youtube results in a HTML file
+ * let result = await ytConverter.convert("youtubeVideoFile.html", {
+ *   fileExtension: ".html",
+ *   url: "https://www.youtube.com/watch?v=abc123"
+ * })
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('https://www.youtube.com/watch?v=abc123');
+ * ```
  */
 export default class YouTubeConverter extends DocumentConverter {
   constructor(
@@ -25,12 +40,6 @@ export default class YouTubeConverter extends DocumentConverter {
    * @param {string} localPath - The local file path to the YouTube page HTML file
    * @param {ConversionOptions} options - Conversion options including file extension and URL
    * @returns {Promise<DocumentConverterResult>} Object containing the converted markdown content, or null if the file is not a YouTube video page
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert("https://www.youtube.com/watch?v=abc123");
-   * ```
    */
   async convert(
     localPath: string,

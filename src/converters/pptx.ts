@@ -16,6 +16,18 @@ const PptxParser = ("default" in nodePptxParser
  * Each slide is converted to a markdown section with its text content preserved.
  *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const pptxConverter = new PptxConverter();
+ * let result = await pptxConverter.convert('presentation.pptx', {
+ *   fileExtension: '.pptx'
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('presentation.pptx');
+ * ```
  */
 export default class PptxConverter extends DocumentConverter {
   constructor(
@@ -32,12 +44,6 @@ export default class PptxConverter extends DocumentConverter {
    * @param {ConversionOptions} options - Conversion options including file extension
    * @returns {Promise<DocumentConverterResult>} Object containing formatted markdown as textContent (title is null), or returns null for unsupported file types (.ppt files or non-PowerPoint files)
    * @throws {Error} If the file cannot be read or parsed
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('presentation.pptx');
-   * ```
    */
   async convert(
     localPath: string,

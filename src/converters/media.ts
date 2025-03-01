@@ -8,7 +8,15 @@ import type {
 /**
  * Abstract base class for media converters.
  * Provides a common interface for all media conversion implementations.
+ *
  * @abstract
+ *
+ * @example
+ * ```typescript
+ * const converter = new MediaConverter();
+ *
+ * const metadata = await converter._getMetadata('video.mp4');
+ * ```
  */
 export default abstract class MediaConverter extends DocumentConverter {
   constructor(

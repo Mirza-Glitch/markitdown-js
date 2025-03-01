@@ -14,7 +14,41 @@ import type { LlmCall, Message } from "../types/markitdown";
  * 1. Image metadata (size, date, location, etc.)
  * 2. OCR-extracted text (requires Tesseract installation)
  * 3. AI-generated image description (requires LLM call as callback)
+ *
  * @extends MediaConverter
+ *
+ * @example
+ * ```typescript
+ * const imageConverter = new ImageConverter();
+ * let result = await imageConverter.convert('photo.jpg', {
+ *   fileExtension: '.jpg',
+ *   llmCall: async (params) => {
+ *     if(params.base64Image) {
+ *       const completion = await openai.chat.completions.create({
+ *         model: "gpt-4o",
+ *         messages: params.messages
+ *       });
+ *       return completion.choices[0].message.content;
+ *     }
+ *     return null;
+ *   }
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown({
+ *   llmCall: async (params) => {
+ *     if(params.base64Image) {
+ *       const completion = await openai.chat.completions.create({
+ *         model: "gpt-4o",
+ *         messages: params.messages
+ *       });
+ *       return completion.choices[0].message.content;
+ *     }
+ *     return null;
+ *   }
+ * });
+ * let result = await converter.convert('photo.jpg');
+ * ```
  */
 export default class ImageConverter extends MediaConverter {
   /**
@@ -34,23 +68,6 @@ export default class ImageConverter extends MediaConverter {
    *    Author, DateTimeOriginal, CreateDate, GPSPosition
    * 2. OCR text (requires Tesseract installation)
    * 3. AI-generated description (requires configured llmCall)
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown({
-   *   llmCall: async (params) => {
-   *     if(params.base64Image) {
-   *       const completion = await openai.chat.completions.create({
-   *         model: "gpt-4o",
-   *         messages: params.messages
-   *       });
-   *       return completion.choices[0].message.content;
-   *     }
-   *   }
-   * });
-   * const result = await converter.convert('photo.jpg');
-   * ```
-   *
    * @override
    */
   override async convert(

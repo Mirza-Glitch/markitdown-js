@@ -16,6 +16,18 @@ const MsgReader = ("default" in kenjiunoMsgReader
  * Extracts email metadata (sender, receiver, subject) and content including attachments.
  *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const outlookConverter = new OutlookMsgConverter();
+ * let result = await outlookConverter.convert('outlook.msg', {
+ *   fileExtension: '.msg'
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('outlook.msg');
+ * ```
  */
 export default class OutlookMsgConverter extends DocumentConverter {
   constructor(
@@ -31,12 +43,6 @@ export default class OutlookMsgConverter extends DocumentConverter {
    * @param {ConversionOptions} options - Conversion options including file extension
    * @returns {Promise<DocumentConverterResult>} Object containing email subject as title and formatted markdown as textContent
    * @throws {Error} If the file cannot be read or parsed
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('outlook.msg');
-   * ```
    */
   async convert(
     localPath: string,

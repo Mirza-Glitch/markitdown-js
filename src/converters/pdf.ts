@@ -8,7 +8,20 @@ import type {
 
 /**
  * Converts PDF files to Markdown format.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const pdfConverter = new PdfConverter();
+ * let result = await pdfConverter.convert('document.pdf', {
+ *   fileExtension: '.pdf'
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('document.pdf');
+ * ```
  */
 export default class PdfConverter extends DocumentConverter {
   constructor(
@@ -24,13 +37,6 @@ export default class PdfConverter extends DocumentConverter {
    * @param {ConversionOptions} options - Conversion options
    * @returns {Promise<DocumentConverterResult>} A promise that resolves to the conversion result
    * @throws {Error} If the file cannot be read or parsed
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('document.pdf');
-   * ```
-   *
    */
   async convert(
     localPath: string,

@@ -33,7 +33,20 @@ type JupyterNotebook = {
 
 /**
  * Converter class for Jupyter Notebook (.ipynb) files to markdown format.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const ipynbConverter = new IpynbConverter();
+ * let result = await ipynbConverter.convert('notebook.ipynb', {
+ *   fileExtension: '.ipynb'
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('notebook.ipynb');
+ * ```
  */
 export default class IpynbConverter extends DocumentConverter {
   constructor(
@@ -48,12 +61,6 @@ export default class IpynbConverter extends DocumentConverter {
    * @param {ConversionOptions} options - Conversion options including file extension
    * @returns {Promise<DocumentConverterResult>} A promise that resolves to the conversion result
    * @throws {Error} If the file cannot be read or parsed
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('notebook.ipynb');
-   * ```
    */
   async convert(
     localPath: string,

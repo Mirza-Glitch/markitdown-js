@@ -15,7 +15,24 @@ import type {
 /**
  * Converts documents using Azure Document Intelligence API.
  * Supports various document formats including PDF, Office documents, and images.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const docIntelConverter = new DocumentIntelligenceConverter({
+ *   endpoint: "https://your-endpoint.cognitiveservices.azure.com/"
+ * })
+ * let result = await converter.convert("document.pdf", {
+ *   fileExtension: ".pdf"
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown({
+ *   docintelEndpoint: "https://your-endpoint.cognitiveservices.azure.com/"
+ * });
+ * let result = await converter.convert("document.pdf");
+ * ```
  */
 export default class DocumentIntelligenceConverter extends DocumentConverter {
   /** Azure Document Intelligence client instance */
@@ -63,14 +80,6 @@ export default class DocumentIntelligenceConverter extends DocumentConverter {
    * available for Office file types (.xlsx, .pptx, .html, .docx)
    *
    * @throws {Error} If the Azure API request fails
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown({
-   *   docintelEndpoint: "https://your-endpoint.cognitiveservices.azure.com/"
-   * });
-   * const result = await converter.convert("document.pdf");
-   * ```
    */
   async convert(
     localPath: string,

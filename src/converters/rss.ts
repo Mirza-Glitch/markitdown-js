@@ -15,6 +15,26 @@ import HtmlConverter from "./html";
  * - Generic XML documents
  *
  * @extends HtmlConverter
+ *
+ * @example
+ * ```typescript
+ * const rssConverter = new RSSConverter();
+ * let xmlResult = await rssConverter.convert('feed.xml', {
+ *   fileExtension: ".xml"
+ * });
+ * let rssResult = await rssConverter.convert('feed.rss', {
+ *   fileExtension: ".rss"
+ * });
+ * let atomResult = await rssConverter.convert('feed.atom', {
+ *   fileExtension: ".atom"
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let xmlResult = await converter.convert('feed.xml');
+ * let rssResult = await converter.convert('feed.rss');
+ * let atomResult = await converter.convert('feed.atom');
+ * ```
  */
 export default class RSSConverter extends HtmlConverter {
   constructor() {
@@ -28,14 +48,6 @@ export default class RSSConverter extends HtmlConverter {
    * @param {string} localPath - Path to the feed file
    * @param {ConversionOptions} options - Conversion options including file extension
    * @returns {Promise<DocumentConverterResult>} Object containing formatted markdown with feed content, or returns null for unsupported file types or parsing failures
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const xmlResult = await converter.convert('feed.xml');
-   * const rssResult = await converter.convert('feed.rss');
-   * const atomResult = await converter.convert('feed.atom');
-   * ```
    */
   override async convert(
     localPath: string,

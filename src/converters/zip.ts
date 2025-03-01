@@ -10,7 +10,21 @@ import type {
 /**
  * ZipConverter handles the conversion of ZIP archives to Markdown format.
  * It extracts the archive contents and processes each file using appropriate parent converters.
+ *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const zipConverter = new ZipConverter();
+ * let result = await zipConverter.convert("archive.zip", {
+ *   parentConverters: [new PdfConverter(), new DocxConverter(), new HtmlConverter()],
+ *   fileExtension: ".zip"
+ * })
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert("archive.zip");
+ * ```
  */
 export default class ZipConverter extends DocumentConverter {
   constructor(
@@ -36,12 +50,6 @@ export default class ZipConverter extends DocumentConverter {
    *   - No parent converters are available
    *   - Archive extraction fails
    *   - File processing fails
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert("archive.zip");
-   * ```
    */
   async convert(
     localPath: string,

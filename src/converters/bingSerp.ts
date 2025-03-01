@@ -9,10 +9,26 @@ import type {
 /**
  * Converts Bing Search Engine Results Pages (SERP) to markdown format.
  * Extracts and formats organic search results from Bing HTML pages.
+ *
  * @extends DocumentConverter
+ *
  * @remarks
  * This converter only handles organic Bing search results.
  * It is better to use Bing API.
+ *
+ * @example
+ * ```typescript
+ * const bingConverter = new BingSerpConverter();
+ * // first fetch and save the search results in a HTML file
+ * let result = await bingConverter.convert('bingSavedSearch.html', {
+ *   url: 'https://www.bing.com/search?q=Javascript',
+ *   fileExtension: '.html'
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('https://www.bing.com/search?q=Javascript');
+ * ```
  */
 export default class BingSerpConverter extends DocumentConverter {
   constructor(
@@ -29,12 +45,6 @@ export default class BingSerpConverter extends DocumentConverter {
    * @param {string} [options.fileExtension] - File extension (must be .html or .htm)
    * @param {string} [options.url] - Original URL (must be a Bing search URL)
    * @returns {Promise<DocumentConverterResult>} Conversion result containing search results
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('https://www.bing.com/search?q=example');
-   * ```
    */
   async convert(
     localPath: string,

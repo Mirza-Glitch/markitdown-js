@@ -12,6 +12,18 @@ import type {
  * Handles various text-based content types including plain text and JSON files.
  *
  * @extends DocumentConverter
+ *
+ * @example
+ * ```typescript
+ * const plaintextConverter = new PlainTextConverter();
+ * let result = await plaintextConverter.convert('document.txt', {
+ *   fileExtension: '.txt'
+ * });
+ *
+ * // Using Markitdown
+ * const converter = new Markitdown();
+ * let result = await converter.convert('document.txt');
+ * ```
  */
 export default class PlainTextConverter extends DocumentConverter {
   constructor(
@@ -28,12 +40,6 @@ export default class PlainTextConverter extends DocumentConverter {
    * @param {ConversionOptions} options - Conversion options including file extension
    * @returns {Promise<DocumentConverterResult>} Object containing the file content as textContent (title is null), or returns null if the file type is not supported
    * @throws {Error} If the file cannot be read or decoded
-   *
-   * @example
-   * ```typescript
-   * const converter = new Markitdown();
-   * const result = await converter.convert('document.txt');
-   * ```
    */
   async convert(
     localPath: string,

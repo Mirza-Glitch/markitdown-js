@@ -9,6 +9,31 @@ interface TurndownOptions extends TurndownService.Options {
   keepInlineImages?: string[];
 }
 
+/**
+ * Custom Markdown converter with customized rules.
+ *
+ * @example
+ * ```typescript
+ * const converter = new CustomMarkdownConverter({
+ *   headingStyle: "atx",
+ *   hr: "---",
+ *   bulletListMarker: "*",
+ *   codeBlockStyle: "fenced",
+ *   emDelimiter: "_",
+ *   keepInlineImages: [],
+ * }); // Custom Turndown options
+ *
+ * const result = await converter.convert('<h1>Hello World</h1>'); // Output: # Hello World
+ *
+ * converter.addRule("customRule", {
+ *   filter: "tag-name",
+ *   replacement: (content: string, node: Node): string => {
+ *     // Custom rule logic
+ *     return content;
+ *   },
+ * });
+ * ```
+ */
 export default class CustomMarkdownConverter {
   private turndownService: TurndownService;
 
