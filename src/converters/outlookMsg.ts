@@ -18,6 +18,11 @@ const MsgReader = ("default" in kenjiunoMsgReader
  * @extends DocumentConverter
  */
 export default class OutlookMsgConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts an Outlook MSG file to markdown format.
    * The resulting markdown includes email metadata, body content, and attachment information.

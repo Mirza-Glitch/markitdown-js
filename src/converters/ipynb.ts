@@ -36,6 +36,11 @@ type JupyterNotebook = {
  * @extends DocumentConverter
  */
 export default class IpynbConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a Jupyter Notebook file to markdown format.
    *

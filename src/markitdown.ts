@@ -262,8 +262,12 @@ export default class MarkItDown {
     extensions: string[],
     options: Record<string, any>
   ): Promise<DocumentConverterResult> {
+    // Create a copy of the _pageConverters list, sorted by priority.
+    const sortedConverters = [...this._pageConverters].sort(
+      (a, b) => a.priority - b.priority
+    );
     for (const ext of extensions) {
-      for (const converter of this._pageConverters) {
+      for (const converter of sortedConverters) {
         try {
           const result = await converter.convert(filePath, {
             ...options,

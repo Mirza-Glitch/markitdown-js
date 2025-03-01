@@ -11,6 +11,11 @@ import type {
  * @abstract
  */
 export default abstract class MediaConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a local file to the target format.
    * @abstract

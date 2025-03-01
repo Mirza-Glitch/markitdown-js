@@ -31,11 +31,13 @@ export default class DocumentIntelligenceConverter extends DocumentConverter {
   constructor({
     endpoint,
     apiVersion = "2024-07-31-preview",
+    priority = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT,
   }: {
     endpoint: string;
     apiVersion?: string;
+    priority?: number;
   }) {
-    super();
+    super(priority);
     this.docIntelClient = createDocIntelClient(
       endpoint,
       new DefaultAzureCredential(),

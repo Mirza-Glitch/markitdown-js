@@ -11,6 +11,11 @@ import type {
  * @extends DocumentConverter
  */
 export default class PdfConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a PDF file to Markdown format.
    * Uses pdf-parse to Extract text from PDF file.

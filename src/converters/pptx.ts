@@ -18,6 +18,11 @@ const PptxParser = ("default" in nodePptxParser
  * @extends DocumentConverter
  */
 export default class PptxConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a PPTX file to markdown format.
    * Extracts text from each slide and organizes them in order.

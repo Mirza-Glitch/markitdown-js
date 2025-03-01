@@ -15,6 +15,11 @@ import type {
  * It is better to use Bing API.
  */
 export default class BingSerpConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a Bing search results page to markdown format.
    * Only processes HTML files from Bing search URLs.

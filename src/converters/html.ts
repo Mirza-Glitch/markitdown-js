@@ -14,6 +14,11 @@ import type {
  * @extends DocumentConverter
  */
 export default class HtmlConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_GENERIC_FILE_FORMAT // anything with content type text/html
+  ) {
+    super(priority);
+  }
   /**
    * Converts an HTML file to Markdown format.
    *

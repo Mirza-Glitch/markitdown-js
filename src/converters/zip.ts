@@ -13,6 +13,11 @@ import type {
  * @extends DocumentConverter
  */
 export default class ZipConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a ZIP archive to Markdown by extracting and processing its contents.
    * Creates a temporary directory for extraction, processes each file with available converters,

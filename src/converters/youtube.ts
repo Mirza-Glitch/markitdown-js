@@ -13,6 +13,11 @@ import DocumentConverter from "./document";
  * @extends DocumentConverter
  */
 export default class YouTubeConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a YouTube video page to Markdown format.
    * Extracts video title, metadata, description, and transcript (if available).

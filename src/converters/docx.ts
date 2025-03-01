@@ -2,6 +2,7 @@ import fs from "fs";
 import mammoth from "mammoth";
 import HtmlConverter from "./html";
 import type { ConversionOptions } from "../types/document";
+import DocumentConverter from "./document";
 
 /**
  * Converts DOCX files to Markdown format via HTML intermediate conversion.
@@ -9,6 +10,11 @@ import type { ConversionOptions } from "../types/document";
  * @extends HtmlConverter
  */
 export default class DocxConverter extends HtmlConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a DOCX file to Markdown format.
    * Uses Mammoth.js to convert DOCX to HTML, then processes the HTML to Markdown.

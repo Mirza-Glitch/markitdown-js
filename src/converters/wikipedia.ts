@@ -29,8 +29,10 @@ export default class WikipediaConverter extends DocumentConverter {
   /**
    * Initializes a new instance of WikipediaConverter and configures the markdown converter.
    */
-  constructor() {
-    super();
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
     this._turndown = new CustomMarkdownConverter();
     this._configureTurndown();
   }

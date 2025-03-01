@@ -14,6 +14,11 @@ import type {
  * @extends DocumentConverter
  */
 export default class PlainTextConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_GENERIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts a text file to the standard document format.
    * Automatically detects content type based on file extension and only processes

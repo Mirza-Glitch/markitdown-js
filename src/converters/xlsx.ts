@@ -3,14 +3,19 @@ import type {
   ConversionOptions,
   DocumentConverterResult,
 } from "../types/document";
-import HtmlConverter from "./html";
+import DocumentConverter from "./document";
 
 /**
  * XlsxConverter handles the conversion of Excel files (XLSX/XLS) to Markdown format.
  * Each sheet in the workbook is converted to a Markdown table with proper formatting.
- * @extends HtmlConverter
+ * @extends DocumentConverter
  */
-export default class XlsxConverter extends HtmlConverter {
+export default class XlsxConverter extends DocumentConverter {
+  constructor(
+    priority: number = DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT
+  ) {
+    super(priority);
+  }
   /**
    * Converts an Excel file to Markdown format.
    * Each sheet is represented as a separate section with a Markdown table.
