@@ -84,32 +84,7 @@ export default class ZipConverter extends DocumentConverter {
         .promise();
 
       // Process extracted files
-      const files = fs.readdirSync(extractionDir, { withFileTypes: true });
-
-      // Convert each file using appropriate converter
-      for (const file of files) {
-        const filePath = path.join(extractionDir, file.name);
-        const fileExt = path.extname(file.name);
-
-        // Try each available converter
-        for (const converter of parentConverters) {
-          // Skip self-reference to avoid recursion
-          if (converter instanceof ZipConverter) continue;
-
-          // Attempt conversion
-          const result = await converter.convert(filePath, {
-            fileExtension: fileExt,
-            parentConverters,
-          });
-
-          // Add successful conversion to output
-          if (result) {
-            mdContent +=
-              `\n## File: ${file.name}\n\n` + result.textContent + "\n\n";
-            break;
-          }
-        }
-      }
+      mdContent += await this.processDirectory(extractionDir, parentConverters);
 
       // Cleanup temporary directory
       fs.rmSync(extractionDir, { recursive: true, force: true });
@@ -126,5 +101,63 @@ export default class ZipConverter extends DocumentConverter {
         }`,
       };
     }
+  }
+
+  /**
+   * Processes a directory of files within a ZIP archive.
+   * Converts each file using available parent converters.
+   *
+   * @param {string} extractionDir - The directory path to process
+   * @param {DocumentConverter[]} parentConverters - Conversion options
+   * @param {string} [parentDirName] - The name of the parent directory (if present)
+   *
+   * @returns {Promise<string>} The processed directory contents
+   *
+   * @private
+   */
+  private async processDirectory(
+    extractionDir: string,
+    parentConverters: DocumentConverter[],
+    parentDirName?: string
+  ): Promise<string> {
+    let mdContent = "";
+    // Process extracted files
+    const files = fs.readdirSync(extractionDir, { withFileTypes: true });
+    // Convert each file using appropriate converter
+    for (const file of files) {
+      if (file.isDirectory()) {
+        mdContent += await this.processDirectory(
+          path.join(extractionDir, file.name),
+          parentConverters,
+          parentDirName ? parentDirName + "/" + file.name : file.name // add parent directory name if present, else add current directory name
+        );
+        continue;
+      }
+      const filePath = path.join(extractionDir, file.name);
+      const fileExt = path.extname(file.name);
+
+      // Try each available converter
+      for (const converter of parentConverters) {
+        // Skip self-reference to avoid recursion
+        if (converter instanceof ZipConverter) continue;
+
+        // Attempt conversion
+        const result = await converter.convert(filePath, {
+          fileExtension: fileExt,
+          parentConverters,
+        });
+
+        // Add successful conversion to output
+        if (result) {
+          mdContent += `\n## File: `;
+          mdContent += parentDirName ? parentDirName + "/" : ""; // add parent directory name if present
+          mdContent += `${file.name}\n\n`; // add filename
+          mdContent += `${result.textContent}\n\n`; // add conversion result
+          break;
+        }
+      }
+    }
+
+    return mdContent;
   }
 }
